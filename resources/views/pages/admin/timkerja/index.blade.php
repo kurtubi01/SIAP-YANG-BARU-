@@ -9,13 +9,17 @@
 <div class="container-fluid px-4 py-4">
 
     {{-- HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="app-page-header">
 
         <div>
-            <h4 class="fw-bold mb-0 text-dark">Manajemen Tim Kerja</h4>
-            <p class="text-muted small mb-0">
-                Kelola data tim kerja yang digunakan pada Subjek dan SOP
-            </p>
+            <h1 class="app-page-title">Manajemen Tim Kerja</h1>
+            <p class="app-page-subtitle">Kelola data tim kerja yang digunakan pada subjek dan SOP dengan tampilan yang lebih rapi.</p>
+            <nav aria-label="breadcrumb" class="mt-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary fw-bold">Manajemen Tim Kerja</li>
+                </ol>
+            </nav>
         </div>
 
         <button type="button"
@@ -63,13 +67,11 @@
     @endif
 
     {{-- TABLE --}}
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="app-table-card">
 
-        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
-
-            <div class="fw-bold">
-                Total Data :
-                <span class="text-primary">{{ count($timkerja) }}</span>
+        <div class="app-table-toolbar d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="soft-note">
+                Tabel tim kerja dibuat konsisten dengan menu lain supaya struktur data dan warna kolom lebih nyaman dibaca.
             </div>
 
             <input type="text"
@@ -80,13 +82,13 @@
 
         </div>
 
-        <div class="card-body p-0">
+        <div class="app-table-wrap">
 
             <div class="table-responsive">
 
-                <table class="table table-hover align-middle mb-0" id="tableTimkerja">
+                <table class="table app-table-modern align-middle mb-0" id="tableTimkerja">
 
-                    <thead class="bg-light">
+                    <thead>
                         <tr>
                             <th class="px-4 py-3">No</th>
                             <th class="py-3">Nama Tim Kerja</th>

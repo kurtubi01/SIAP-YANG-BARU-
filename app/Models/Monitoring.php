@@ -20,8 +20,10 @@ class Monitoring extends Model
         'id_sop',
         'tanggal',
         'id_user',
+        'prosedur',
         'kriteria_penilaian',
         'hasil_monitoring',
+        'tindakan',
         'catatan'
     ];
 

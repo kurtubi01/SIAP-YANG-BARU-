@@ -5,6 +5,11 @@
 @php($canManage = in_array($prefix, ['admin', 'operator'], true))
 
 <style>
+    .monitoring-summary {
+        display: grid;
+        gap: 0.2rem;
+    }
+
     .badge-matte {
         display: inline-flex;
         align-items: center;
@@ -71,6 +76,12 @@
         background: #fff5f5;
     }
 
+    .icon-btn.icon-edit {
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        background: #eff6ff;
+    }
+
     .cell-title {
         font-weight: 700;
         color: #0f172a;
@@ -95,6 +106,12 @@
         <div>
             <h1 class="app-page-title">Monitoring SOP</h1>
             <p class="app-page-subtitle">Catat hasil monitoring untuk dokumen SOP aktif dengan tampilan yang konsisten, huruf yang lebih nyaman dibaca, dan garis tabel yang lebih jelas.</p>
+            <nav aria-label="breadcrumb" class="mt-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route($prefix . '.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary fw-bold">Monitoring</li>
+                </ol>
+            </nav>
         </div>
 
         @if($canManage)
@@ -105,10 +122,6 @@
             <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">Mode baca untuk viewer</span>
         @endif
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-4">{{ session('success') }}</div>
-    @endif
 
     <div class="app-table-card">
         <div class="app-table-toolbar">
@@ -149,21 +162,34 @@
                                     <span class="cell-subtitle">{{ $monitoring->user->timkerja->nama_timkerja ?? $monitoring->sop->subjek->timkerja->nama_timkerja ?? '-' }}</span>
                                 </div>
                             </td>
-                            <td>{{ $monitoring->kriteria_penilaian }}</td>
-                            <td>{{ $monitoring->hasil_monitoring }}</td>
+                            <td>
+                                <div class="monitoring-summary">
+                                    <span class="cell-title">{{ $monitoring->kriteria_penilaian }}</span>
+                                    <span class="cell-subtitle">{{ \Illuminate\Support\Str::limit($monitoring->prosedur ?: 'Prosedur belum diisi', 60) }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="monitoring-summary">
+                                    <span>{{ \Illuminate\Support\Str::limit($monitoring->hasil_monitoring, 70) }}</span>
+                                    <span class="cell-subtitle">{{ \Illuminate\Support\Str::limit($monitoring->tindakan ?: 'Tindakan belum diisi', 60) }}</span>
+                                </div>
+                            </td>
                             <td>
                                 <span class="badge-matte {{ $healthClass }}">{{ $healthLabel }}</span>
                             </td>
                             <td class="text-center">
                                 @if($canManage)
                                     <div class="action-tools">
-                                        <button type="button" class="icon-btn" title="Monitoring tersimpan" disabled>
+                                        <a href="{{ route($prefix . '.monitoring.show', $monitoring->id_monitoring) }}" class="icon-btn" title="Lihat monitoring">
                                             <i class="bi bi-eye"></i>
-                                        </button>
-                                        <form method="POST" action="{{ route($prefix . '.monitoring.destroy', $monitoring->id_monitoring) }}">
+                                        </a>
+                                        <a href="{{ route($prefix . '.monitoring.edit', $monitoring->id_monitoring) }}" class="icon-btn icon-edit" title="Edit monitoring">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form method="POST" action="{{ route($prefix . '.monitoring.destroy', $monitoring->id_monitoring) }}" class="delete-monitoring-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="icon-btn icon-danger" title="Hapus monitoring">
+                                            <button type="button" class="icon-btn icon-danger btn-delete-monitoring" title="Hapus monitoring">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         </form>
@@ -184,4 +210,41 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(session('success'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: @json(session('success')),
+                showConfirmButton: false,
+                timer: 1200,
+                timerProgressBar: true
+            });
+        @endif
+
+        document.querySelectorAll('.btn-delete-monitoring').forEach((button) => {
+            button.addEventListener('click', function () {
+                const form = this.closest('.delete-monitoring-form');
+
+                Swal.fire({
+                    title: 'Hapus monitoring?',
+                    text: 'Data monitoring akan dihapus permanen.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed && form) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

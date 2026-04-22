@@ -223,5 +223,15 @@
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if($errors->has('username'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Login Gagal',
+        text: '{{ $errors->first('username') }}',
+        confirmButtonColor: '#1976d2'
+    });
+</script>
+@endif
 </body>
 </html>

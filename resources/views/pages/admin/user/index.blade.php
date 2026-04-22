@@ -4,10 +4,17 @@
 
 <style>
 .app-modal {
-    display:none;
+    display: none;
+    position: fixed;
+    z-index: 1055; /* penting */
 }
-.app-modal.is-open {
-    display:block;
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+.modal.show {
+    display: block;
+    z-index: 1055;
 }
 .badge-soft{
     padding:6px 12px;
@@ -45,6 +52,12 @@
         <div>
             <h1 class="app-page-title">Manajemen User</h1>
             <p class="app-page-subtitle">Kelola akun login dan hak akses sistem dengan layout yang lebih konsisten, teks yang jelas, dan tabel yang rapi.</p>
+            <nav aria-label="breadcrumb" class="mt-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary fw-bold">Manajemen User</li>
+                </ol>
+            </nav>
         </div>
 
         <button type="button"
@@ -92,272 +105,272 @@
                 <tbody>
 
                 @forelse($users as $index => $u)
-                    <tr>
+<tr>
 
-                        <td class="text-center fw-bold text-muted">
-                            {{ $index + 1 }}
-                        </td>
+    <td class="text-center fw-bold text-muted">
+        {{ $index + 1 }}
+    </td>
 
-                        <td>
-                            <div class="fw-bold text-dark">
-                                {{ $u->nama }}
-                            </div>
+    <td>
+        <div class="fw-bold text-dark">
+            {{ $u->nama }}
+        </div>
 
-                            <div class="text-muted small">
-                                NIP. {{ $u->nip }}
-                            </div>
-                        </td>
+        <div class="text-muted small">
+            NIP. {{ $u->nip }}
+        </div>
+    </td>
 
-                        <td>
-                            <span class="badge bg-light text-primary border">
-                                {{ $u->username }}
-                            </span>
-                        </td>
+    <td>
+        <span class="badge bg-light text-primary border">
+            {{ $u->username }}
+        </span>
+    </td>
 
-                        <td>
+    <td>
 
-                            @if($u->role == 'admin')
-                                <span class="badge-soft bg-danger text-white">
-                                    ADMIN
-                                </span>
+        @if($u->role == 'admin')
+            <span class="badge-soft bg-danger text-white">
+                ADMIN
+            </span>
 
-                            @elseif($u->role == 'operator')
-                                <span class="badge-soft bg-primary text-white">
-                                    OPERATOR
-                                </span>
+        @elseif($u->role == 'operator')
+            <span class="badge-soft bg-primary text-white">
+                OPERATOR
+            </span>
 
-                            @else
-                                <span class="badge-soft bg-secondary text-white">
-                                    VIEWER
-                                </span>
-                            @endif
+        @else
+            <span class="badge-soft bg-secondary text-white">
+                VIEWER
+            </span>
+        @endif
 
-                        </td>
+    </td>
 
-                        <td>
-                            {{ $u->timkerja->nama_timkerja ?? '-' }}
-                        </td>
+    <td>
+        {{ $u->timkerja->nama_timkerja ?? '-' }}
+    </td>
 
-                        <td>
-                            {{ optional($u->timkerja)->subjek?->pluck('nama_subjek')->filter()->join(', ') ?: '-' }}
-                        </td>
+    <td>
+        {{ optional($u->timkerja)->subjek?->pluck('nama_subjek')->filter()->join(', ') ?: '-' }}
+    </td>
 
-                        <td>
-                            <div class="audit-text">
+    <td>
+        <div class="audit-text">
 
-                                <b>Create:</b>
-                                {{ $u->creator->nama ?? '-' }}
+            <b>Create:</b>
+            {{ $u->creator->nama ?? '-' }}
 
-                                <br>
+            <br>
 
-                                {{ $u->created_date ?? '-' }}
+            {{ $u->created_date ?? '-' }}
 
-                                <hr class="my-1">
+            <hr class="my-1">
 
-                                <b>Modified:</b>
-                                {{ $u->editor->nama ?? '-' }}
+            <b>Modified:</b>
+            {{ $u->editor->nama ?? '-' }}
 
-                                <br>
+            <br>
 
-                                {{ $u->modified_date ?? '-' }}
+            {{ $u->modified_date ?? '-' }}
 
-                            </div>
-                        </td>
+        </div>
+    </td>
 
-                        <td class="text-center">
+    <td class="text-center">
 
-                            <div class="d-flex justify-content-center gap-2">
+        <div class="d-flex justify-content-center gap-2">
 
-                                {{-- EDIT --}}
-                                <button type="button"
-                                        class="btn-icon"
-                                        data-app-modal-open="modalEdit{{ $u->id_user }}"
-                                        onclick="return openAppModal('modalEdit{{ $u->id_user }}')">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+            {{-- EDIT --}}
+            <button type="button"
+                    class="btn-icon"
+                    data-app-modal-open="modalEdit{{ $u->id_user }}"
+                    onclick="return openAppModal('modalEdit{{ $u->id_user }}')">
+                <i class="bi bi-pencil"></i>
+            </button>
 
-                                {{-- DELETE --}}
-                                <form action="{{ route('admin.user.destroy',$u->id_user) }}"
-                                      method="POST"
-                                      class="form-delete d-inline">
+            {{-- DELETE --}}
+            <form action="{{ route('admin.user.destroy',$u->id_user) }}"
+                  method="POST"
+                  class="form-delete d-inline">
 
-                                    @csrf
-                                    @method('DELETE')
+                @csrf
+                @method('DELETE')
 
-                                    <button type="button"
-                                            class="btn-icon text-danger btn-delete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                <button type="button"
+                        class="btn-icon text-danger btn-delete">
+                    <i class="bi bi-trash"></i>
+                </button>
 
-                                </form>
+            </form>
 
-                            </div>
+        </div>
 
-                        </td>
+    </td>
 
-                    </tr>
+</tr>
 
-                    {{-- MODAL EDIT --}}
-                    <div class="modal fade app-modal"
-                         id="modalEdit{{ $u->id_user }}"
-                         tabindex="-1"
-                         data-app-modal>
+@empty
 
-                        <div class="modal-dialog modal-dialog-centered">
+<tr>
+    <td colspan="8" class="text-center py-5 text-muted">
+        Data user belum tersedia.
+    </td>
+</tr>
 
-                            <div class="modal-content border-0 shadow-lg rounded-4">
+@endforelse
 
-                                <div class="modal-header border-0 pt-4 px-4">
+                </tbody>
 
-                                    <h5 class="fw-bold">
-                                        Edit Data User
-                                    </h5>
+            </table>
+{{-- MODAL EDIT --}}
+@foreach($users as $u)
+<div class="modal fade app-modal"
+     id="modalEdit{{ $u->id_user }}"
+     tabindex="-1"
+     data-app-modal>
 
-                                    <button type="button"
-                                            class="btn-close"
-                                            data-app-modal-close>
-                                    </button>
+    <div class="modal-dialog modal-dialog-centered">
 
-                                </div>
+        <div class="modal-content border-0 shadow-lg rounded-4">
 
-                                <form action="{{ route('admin.user.update',$u->id_user) }}"
-                                      method="POST"
-                                      data-user-form="edit">
+            <div class="modal-header border-0 pt-4 px-4">
 
-                                    @csrf
-                                    @method('PUT')
+                <h5 class="fw-bold">
+                    Edit Data User
+                </h5>
 
-                                    <div class="modal-body p-4">
+                <button type="button"
+                        class="btn-close"
+                        data-app-modal-close>
+                </button>
 
-                                        <div class="mb-3">
-                                            <label class="small fw-bold">
-                                                Nama Lengkap
-                                            </label>
+            </div>
 
-                                            <input type="text"
-                                                   name="nama"
-                                                   value="{{ $u->nama }}"
-                                                   class="form-control bg-light border-0 py-2"
-                                                   required>
-                                        </div>
+            <form action="{{ route('admin.user.update',$u->id_user) }}"
+                  method="POST"
+                  data-user-form="edit">
 
-                                        <div class="row">
+                @csrf
+                @method('PUT')
 
-                                            <div class="col-6 mb-3">
-                                                <label class="small fw-bold">NIP</label>
+                <div class="modal-body p-4">
 
-                                                <input type="text"
-                                                       name="nip"
-                                                       value="{{ $u->nip }}"
-                                                       class="form-control bg-light border-0 py-2"
-                                                       required>
-                                            </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">
+                            Nama Lengkap
+                        </label>
 
-                                            <div class="col-6 mb-3">
-                                                <label class="small fw-bold">Username</label>
+                        <input type="text"
+                               name="nama"
+                               value="{{ $u->nama }}"
+                               class="form-control bg-light border-0 py-2"
+                               required>
+                    </div>
 
-                                                <input type="text"
-                                                       name="username"
-                                                       value="{{ $u->username }}"
-                                                       class="form-control bg-light border-0 py-2"
-                                                       required>
-                                            </div>
+                    <div class="row">
 
-                                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">NIP</label>
 
-                                        <div class="mb-3">
-                                            <label class="small fw-bold">
-                                                Password (isi jika ganti)
-                                            </label>
+                            <input type="text"
+                                   name="nip"
+                                   value="{{ $u->nip }}"
+                                   class="form-control bg-light border-0 py-2"
+                                   required>
+                        </div>
 
-                                            <input type="password"
-                                                   name="password"
-                                                   minlength="6"
-                                                   class="form-control bg-light border-0 py-2">
-                                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="small fw-bold">Username</label>
 
-                                        <div class="row">
+                            <input type="text"
+                                   name="username"
+                                   value="{{ $u->username }}"
+                                   class="form-control bg-light border-0 py-2"
+                                   required>
+                        </div>
 
-                                            <div class="col-6 mb-3">
+                    </div>
 
-                                                <label class="small fw-bold">
-                                                    Role
-                                                </label>
+                    <div class="mb-3">
+                        <label class="small fw-bold">
+                            Password (isi jika ganti)
+                        </label>
 
-                                                <select name="role"
-                                                        data-role-select
-                                                        class="form-select bg-light border-0 py-2">
+                        <input type="password"
+                               name="password"
+                               minlength="6"
+                               class="form-control bg-light border-0 py-2">
+                    </div>
 
-                                                    <option value="admin" {{ $u->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                                    <option value="operator" {{ $u->role == 'operator' ? 'selected' : '' }}>Operator</option>
-                                                    <option value="viewer" {{ $u->role == 'viewer' ? 'selected' : '' }}>Viewer</option>
+                    <div class="row">
 
-                                                </select>
+                        <div class="col-6 mb-3">
 
-                                            </div>
+                            <label class="small fw-bold">
+                                Role
+                            </label>
 
-                                            <div class="col-6 mb-3">
+                            <select name="role"
+                                    data-role-select
+                                    class="form-select bg-light border-0 py-2">
 
-                                                <label class="small fw-bold">
-                                                    Tim Kerja
-                                                </label>
+                                <option value="admin" {{ $u->role == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="operator" {{ $u->role == 'operator' ? 'selected' : '' }}>Operator</option>
+                                <option value="viewer" {{ $u->role == 'viewer' ? 'selected' : '' }}>Viewer</option>
 
-                                                <select name="id_timkerja"
-                                                        data-timkerja-select
-                                                        class="form-select bg-light border-0 py-2">
+                            </select>
 
-                                                    <option value="">-- Pilih --</option>
+                        </div>
 
-                                                    @foreach($timkerja as $t)
-                                                        <option value="{{ $t->id_timkerja }}"
-                                                            {{ $u->id_timkerja == $t->id_timkerja ? 'selected' : '' }}>
-                                                            {{ $t->nama_timkerja }}
-                                                        </option>
-                                                    @endforeach
+                        <div class="col-6 mb-3">
 
-                                                </select>
+                            <label class="small fw-bold">
+                                Tim Kerja
+                            </label>
 
-                                                <small class="text-muted d-block mt-2" data-timkerja-help>
-                                                    Tim kerja wajib dipilih untuk operator dan viewer.
-                                                </small>
+                            <select name="id_timkerja"
+                                    data-timkerja-select
+                                    class="form-select bg-light border-0 py-2">
 
-                                            </div>
+                                <option value="">-- Pilih --</option>
 
-                                        </div>
+                                @foreach($timkerja as $t)
+                                    <option value="{{ $t->id_timkerja }}"
+                                        {{ $u->id_timkerja == $t->id_timkerja ? 'selected' : '' }}>
+                                        {{ $t->nama_timkerja }}
+                                    </option>
+                                @endforeach
 
-                                    </div>
+                            </select>
 
-                                    <div class="modal-footer border-0 p-4 pt-0">
-
-                                        <button type="submit"
-                                                class="btn btn-primary w-100 py-3 fw-bold rounded-3">
-                                            UPDATE DATA
-                                        </button>
-
-                                    </div>
-
-                                </form>
-
-                            </div>
+                            <small class="text-muted d-block mt-2" data-timkerja-help>
+                                Tim kerja wajib dipilih untuk operator dan viewer.
+                            </small>
 
                         </div>
 
                     </div>
 
-                @empty
+                </div>
 
-                    <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
-                            Data user belum tersedia.
-                        </td>
-                    </tr>
+                <div class="modal-footer border-0 p-4 pt-0">
 
-                @endforelse
+                    <button type="submit"
+                            class="btn btn-primary w-100 py-3 fw-bold rounded-3">
+                        UPDATE DATA
+                    </button>
 
-                </tbody>
+                </div>
 
-            </table>
+            </form>
 
+        </div>
+
+    </div>
+
+</div>
+@endforeach
         </div>
         </div>
     </div>

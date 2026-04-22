@@ -74,7 +74,7 @@ class MonitoringController extends Controller
 
     private function findVisibleMonitoringOrFail(int $id): Monitoring
     {
-        $query = Monitoring::query()->where('id_monitoring', $id);
+        $query = Monitoring::with(['sop.subjek.timkerja', 'user.timkerja'])->where('id_monitoring', $id);
         $this->applyRoleScope($query);
 
         return $query->firstOrFail();
@@ -98,23 +98,32 @@ class MonitoringController extends Controller
     {
         $sops = $this->visibleSopQuery()->get();
 
-        return view('pages.monitoring.create', compact('sops'));
+        return view('pages.monitoring.create', [
+            'sops' => $sops,
+            'monitoring' => null,
+            'pageMode' => 'create',
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_sop' => ['required', Rule::in($this->visibleSopIds())],
+            'prosedur' => 'required|string',
             'kriteria_penilaian' => 'required|in:Berjalan dengan baik,Tidak berjalan dengan baik',
-            'hasil_monitoring' => 'required',
+            'hasil_monitoring' => 'required|string',
+            'tindakan' => 'required|string',
+            'catatan' => 'nullable|string',
         ]);
 
         $monitoring = Monitoring::create([
             'id_sop' => $request->id_sop,
             'id_user' => Auth::id(),
             'tanggal' => now(),
+            'prosedur' => $request->prosedur,
             'kriteria_penilaian' => $request->kriteria_penilaian,
             'hasil_monitoring' => $request->hasil_monitoring,
+            'tindakan' => $request->tindakan,
             'catatan' => $request->catatan,
         ]);
 
@@ -148,16 +157,54 @@ class MonitoringController extends Controller
 
     public function show($id)
     {
-        return redirect()->route($this->routePrefix() . '.monitoring.index');
+        $monitoring = $this->findVisibleMonitoringOrFail((int) $id);
+
+        return view('pages.monitoring.show', compact('monitoring'));
     }
 
     public function edit($id)
     {
-        return redirect()->route($this->routePrefix() . '.monitoring.index');
+        $monitoring = $this->findVisibleMonitoringOrFail((int) $id);
+        $sops = $this->visibleSopQuery()->get();
+
+        return view('pages.monitoring.create', [
+            'sops' => $sops,
+            'monitoring' => $monitoring,
+            'pageMode' => 'edit',
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        return redirect()->route($this->routePrefix() . '.monitoring.index');
+        $monitoring = $this->findVisibleMonitoringOrFail((int) $id);
+
+        $request->validate([
+            'id_sop' => ['required', Rule::in($this->visibleSopIds())],
+            'prosedur' => 'required|string',
+            'kriteria_penilaian' => 'required|in:Berjalan dengan baik,Tidak berjalan dengan baik',
+            'hasil_monitoring' => 'required|string',
+            'tindakan' => 'required|string',
+            'catatan' => 'nullable|string',
+        ]);
+
+        $monitoring->update([
+            'id_sop' => $request->id_sop,
+            'prosedur' => $request->prosedur,
+            'kriteria_penilaian' => $request->kriteria_penilaian,
+            'hasil_monitoring' => $request->hasil_monitoring,
+            'tindakan' => $request->tindakan,
+            'catatan' => $request->catatan,
+        ]);
+
+        $this->userActivityService->log(
+            $request->user(),
+            'Ubah monitoring',
+            'Memperbarui monitoring untuk SOP ID ' . $monitoring->id_sop . '.',
+            $request
+        );
+
+        return redirect()
+            ->route($this->routePrefix() . '.monitoring.index')
+            ->with('success', 'Data monitoring berhasil diperbarui!');
     }
 }

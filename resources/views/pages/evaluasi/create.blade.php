@@ -2,61 +2,190 @@
 
 @section('content')
 @php($prefix = strtolower(Auth::user()->role) === 'admin' ? 'admin' : 'operator')
+@php($pageMode = $pageMode ?? 'create')
+@php($isEdit = $pageMode === 'edit')
+@php($formAction = $isEdit ? route($prefix . '.evaluasi.update', $evaluasi->id_evaluasi) : route($prefix . '.evaluasi.store'))
 
 <style>
-.evaluasi-panel {
-    border: 1px solid #dbe4f0;
+.evaluasi-shell {
+    font-family: 'Inter', 'Nunito', sans-serif;
+}
+
+.evaluasi-card {
+    border: 1px solid #dbe5f1;
     border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 24px 52px rgba(15, 23, 42, 0.08);
     overflow: hidden;
-    background: #fff;
 }
-.evaluasi-header {
-    background: linear-gradient(180deg, #dbe8b8 0%, #e8f0cf 100%);
-    padding: 28px 24px;
-    text-align: center;
+
+.evaluasi-card .card-body {
+    padding: 1.9rem;
+}
+
+.evaluasi-card .form-label {
     font-weight: 800;
-    letter-spacing: .6px;
-    color: #1f2937;
-    border-bottom: 1px solid #cad5af;
+    color: #0f172a;
+    margin-bottom: 0.7rem;
 }
-.evaluasi-list {
-    padding: 24px;
-    display: grid;
-    gap: 12px;
+
+.evaluasi-card .form-select,
+.evaluasi-card .form-control {
+    border-radius: 14px;
+    border: 1px solid #d7e3f0;
+    padding: 0.9rem 1rem;
+    box-shadow: none;
+    color: #334155;
 }
-.evaluasi-option {
-    border: 1px solid #d7dee8;
-    border-radius: 16px;
-    padding: 14px 16px;
-    background: #fff;
+
+.evaluasi-card .form-select:focus,
+.evaluasi-card .form-control:focus {
+    border-color: #8db8ff;
+    box-shadow: 0 0 0 0.22rem rgba(59, 130, 246, 0.12);
+}
+
+.evaluasi-sheet {
+    border: 1px solid #dbe5f1;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fffefb 0%, #ffffff 100%);
+    overflow: hidden;
+}
+
+.evaluasi-sheet-header {
+    padding: 1.6rem 1.4rem 1.2rem;
+    text-align: center;
+    border-bottom: 1px solid #e5ecf5;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.evaluasi-sheet-header h5 {
+    font-weight: 800;
+    margin-bottom: 0.35rem;
+    color: #0f172a;
+}
+
+.evaluasi-sheet-header p {
+    margin-bottom: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.evaluasi-sheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.evaluasi-sheet-table th,
+.evaluasi-sheet-table td {
+    border: 1px solid #d9e4ef;
+    padding: 0.8rem 0.7rem;
+    vertical-align: top;
+}
+
+.evaluasi-sheet-table thead th {
+    background: #edf4ff;
+    color: #17335c;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.evaluasi-sheet-table .col-no {
+    width: 58px;
+    text-align: center;
+}
+
+.evaluasi-sheet-table .criteria-col {
+    width: 34%;
+    font-weight: 700;
+    color: #0f172a;
+    background: #fbfdff;
+}
+
+.scale-cell {
+    text-align: center;
+    background: #ffffff;
+}
+
+.scale-radio {
+    width: 20px;
+    height: 20px;
+    accent-color: #2563eb;
     cursor: pointer;
-    transition: .2s ease;
 }
-.evaluasi-option:hover {
-    border-color: #8ab4ff;
+
+.scale-note {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 34px;
+    height: 34px;
+    border-radius: 12px;
     background: #f8fbff;
+    color: #1d4ed8;
+    font-weight: 800;
 }
-.evaluasi-option.is-active {
-    border-color: #0d6efd;
-    background: #eef5ff;
-    box-shadow: 0 6px 18px rgba(13, 110, 253, 0.08);
+
+.legend-box {
+    padding: 1rem 1.15rem;
+    background: #fcfdff;
+    border-top: 1px solid #e5ecf5;
+    color: #475569;
+    line-height: 1.75;
+    font-size: 0.9rem;
 }
-.evaluasi-option input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
-    flex-shrink: 0;
+
+.sign-box {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sign-card {
+    width: min(100%, 300px);
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    padding: 1rem 1.1rem;
+    color: #475569;
+    background: #ffffff;
+}
+
+.action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.35rem;
+    flex-wrap: wrap;
+}
+
+.btn-soft {
+    border-radius: 14px;
+    padding: 0.85rem 1.45rem;
+    font-weight: 800;
+}
+
+@media (max-width: 1200px) {
+    .evaluasi-sheet-table {
+        min-width: 980px;
+    }
+}
+
+@media (max-width: 768px) {
+    .evaluasi-card .card-body {
+        padding: 1rem;
+    }
 }
 </style>
 
-<div class="container-fluid py-4">
+<div class="container-fluid evaluasi-shell py-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h4 class="fw-bold mb-1">Tambah Evaluasi SOP</h4>
-            <p class="text-muted mb-0">Isi evaluasi SOP dengan memilih satu atau lebih kriteria penilaian.</p>
+            <h4 class="fw-bold mb-1">{{ $isEdit ? 'Edit Evaluasi SOP' : 'Tambah Evaluasi SOP' }}</h4>
+            <p class="text-muted mb-0">Tampilan evaluasi disusun mengikuti pola lembar evaluasi pada dokumen contoh agar lebih formal dan rapi.</p>
         </div>
 
-        <a href="{{ route($prefix . '.evaluasi.index') }}" class="btn btn-outline-secondary px-4 fw-bold">
+        <a href="{{ route($prefix . '.evaluasi.index') }}" class="btn btn-outline-secondary btn-soft">
             <i class="bi bi-arrow-left me-2"></i>Kembali
         </a>
     </div>
@@ -67,91 +196,124 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-4 p-lg-5">
-            <form method="POST" action="{{ route($prefix . '.evaluasi.store') }}" id="evaluasiForm">
+    <div class="evaluasi-card">
+        <div class="card-body">
+            <form method="POST" action="{{ $formAction }}" id="evaluasiForm">
                 @csrf
+                @if($isEdit)
+                    @method('PUT')
+                @endif
 
                 <div class="mb-4">
-                    <label class="form-label fw-semibold">SOP</label>
+                    <label class="form-label">SOP</label>
                     <select name="id_sop" class="form-select" required>
                         <option value="">Pilih SOP</option>
                         @foreach($sops as $sop)
-                            <option value="{{ $sop->id_sop }}" {{ old('id_sop') == $sop->id_sop ? 'selected' : '' }}>
+                            <option value="{{ $sop->id_sop }}" {{ (string) old('id_sop', $evaluasi->id_sop ?? '') === (string) $sop->id_sop ? 'selected' : '' }}>
                                 {{ $sop->nama_sop }}
                             </option>
                         @endforeach
                     </select>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label fw-semibold d-block mb-3">Kriteria Evaluasi Penilaian</label>
+                <div class="table-responsive evaluasi-sheet">
+                    <div class="evaluasi-sheet-header">
+                        <h5>LEMBAR EVALUASI SOP AP</h5>
+                        <p>Badan Pusat Statistik Provinsi Banten</p>
+                    </div>
 
-                    <div class="evaluasi-panel">
-                        <div class="evaluasi-header">
-                            KRITERIA EVALUASI PENILAIAN
-                        </div>
-
-                        <div class="evaluasi-list">
-                            @foreach($kriteriaOptions as $kriteria)
-                                <label class="evaluasi-option {{ in_array($kriteria, old('kriteria_evaluasi', []), true) ? 'is-active' : '' }}">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <input type="checkbox"
-                                               name="kriteria_evaluasi[]"
-                                               class="evaluasi-checkbox"
-                                               value="{{ $kriteria }}"
-                                               {{ in_array($kriteria, old('kriteria_evaluasi', []), true) ? 'checked' : '' }}>
-                                        <div class="fw-semibold">{{ $kriteria }}</div>
-                                    </div>
-                                </label>
+                    <table class="evaluasi-sheet-table">
+                        <thead>
+                            <tr>
+                                <th class="col-no" rowspan="2">No</th>
+                                <th rowspan="2">Penilaian</th>
+                                <th colspan="6">Skor Penilaian</th>
+                            </tr>
+                            <tr>
+                                @for ($score = 1; $score <= 6; $score++)
+                                    <th>{{ $score }}</th>
+                                @endfor
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($kriteriaOptions as $index => $kriteria)
+                                @php($selected = in_array($kriteria, old('kriteria_evaluasi', $evaluasi->kriteria_evaluasi ?? []), true))
+                                <tr>
+                                    <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                    <td class="criteria-col">{{ $kriteria }}</td>
+                                    @for ($score = 1; $score <= 6; $score++)
+                                        <td class="scale-cell">
+                                            @if($score === $index + 1)
+                                                <input type="checkbox"
+                                                       name="kriteria_evaluasi[]"
+                                                       class="evaluasi-checkbox"
+                                                       value="{{ $kriteria }}"
+                                                       {{ $selected ? 'checked' : '' }}>
+                                            @else
+                                                <span class="scale-note">{{ $score }}</span>
+                                            @endif
+                                        </td>
+                                    @endfor
+                                </tr>
                             @endforeach
-                        </div>
+                        </tbody>
+                    </table>
+
+                    <div class="legend-box">
+                        <div><strong>Keterangan 1 s.d. 6:</strong> beri tanda centang pada baris penilaian yang dinilai sesuai hasil evaluasi.</div>
+                        <div><strong>Catatan:</strong> tampilan dibuat menyerupai dokumen evaluasi agar pegawai lebih familiar saat mengisi.</div>
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div class="mt-4">
                     <label class="form-label fw-semibold">Hasil Evaluasi</label>
-                    <textarea name="hasil_evaluasi" class="form-control" rows="4" required>{{ old('hasil_evaluasi') }}</textarea>
+                    <textarea name="hasil_evaluasi" class="form-control" rows="4" required>{{ old('hasil_evaluasi', $evaluasi->hasil_evaluasi ?? '') }}</textarea>
                 </div>
 
-                <div class="mb-4">
+                <div class="mt-4">
                     <label class="form-label fw-semibold">Catatan</label>
-                    <textarea name="catatan" class="form-control" rows="3">{{ old('catatan') }}</textarea>
+                    <textarea name="catatan" class="form-control" rows="3">{{ old('catatan', $evaluasi->catatan ?? '') }}</textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary px-4 fw-bold">
-                    Simpan Evaluasi
-                </button>
+                <div class="sign-box">
+                    <div class="sign-card">
+                        <div class="fw-semibold">Tempat & Tanggal</div>
+                        <div>Ketua Tim,</div>
+                        <div class="mt-4">Ttd.</div>
+                        <div class="mt-3 fw-semibold">NAMA JELAS</div>
+                    </div>
+                </div>
+
+                <div class="action-row">
+                    <a href="{{ route($prefix . '.evaluasi.index') }}" class="btn btn-light btn-soft border">Batal</a>
+                    <button type="submit" class="btn btn-primary btn-soft">
+                        <i class="bi bi-check2-circle me-2"></i>{{ $isEdit ? 'Simpan Perubahan' : 'Simpan Evaluasi' }}
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('evaluasiForm');
     const checkboxes = document.querySelectorAll('.evaluasi-checkbox');
-
-    function syncEvaluasiState() {
-        checkboxes.forEach((checkbox) => {
-            checkbox.closest('.evaluasi-option')?.classList.toggle('is-active', checkbox.checked);
-        });
-    }
-
-    checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', syncEvaluasiState);
-    });
 
     form?.addEventListener('submit', function (event) {
         const hasChecked = Array.from(checkboxes).some((checkbox) => checkbox.checked);
 
         if (!hasChecked) {
             event.preventDefault();
-            alert('Pilih minimal satu kriteria evaluasi terlebih dahulu.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Kriteria belum dipilih',
+                text: 'Pilih minimal satu kriteria evaluasi terlebih dahulu.',
+                confirmButtonText: 'OK'
+            });
         }
     });
-
-    syncEvaluasiState();
 });
 </script>
 @endsection

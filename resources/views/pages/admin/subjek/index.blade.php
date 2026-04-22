@@ -2,6 +2,7 @@
 
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@php($timkerjaSearchData = $timkerja->map(fn ($item) => ['id' => (int) $item->id_timkerja, 'label' => $item->nama_timkerja])->values())
 <style>
 .app-modal {
     display:none;
@@ -9,16 +10,73 @@
 .app-modal.is-open {
     display:block;
 }
+.search-select {
+    position: relative;
+}
+.search-select-input {
+    padding-left: 42px;
+}
+.search-select-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    z-index: 2;
+}
+.search-select-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #dbe5f1;
+    border-radius: 14px;
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+    z-index: 20;
+    display: none;
+}
+.search-select-menu.is-open {
+    display: block;
+}
+.search-select-list {
+    max-height: 220px;
+    overflow-y: auto;
+}
+.search-select-item {
+    padding: 11px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #eff4f9;
+}
+.search-select-item:last-child {
+    border-bottom: none;
+}
+.search-select-item:hover {
+    background: #eff6ff;
+}
+.search-select-title {
+    font-weight: 700;
+    color: #0f172a;
+}
+.search-select-empty {
+    padding: 12px 14px;
+    color: #64748b;
+}
 </style>
 <div class="container-fluid px-4 py-4">
 
     {{-- HEADER --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="app-page-header">
         <div>
-            <h4 class="fw-bold mb-0 text-dark">Manajemen Subjek</h4>
-            <p class="text-muted small mb-0">
-                Kelola data subjek berdasarkan Tim Kerja
-            </p>
+            <h1 class="app-page-title">Manajemen Subjek</h1>
+            <p class="app-page-subtitle">Kelola data subjek dengan tampilan yang lebih konsisten. Tim kerja sekarang bisa dicari lewat search bar dan boleh dikosongkan saat simpan.</p>
+            <nav aria-label="breadcrumb" class="mt-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary fw-bold">Manajemen Subjek</li>
+                </ol>
+            </nav>
         </div>
 
         <button type="button"
@@ -59,14 +117,12 @@
     @endif
 
     {{-- TABLE --}}
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="app-table-card">
 
-        <div class="card-header bg-white border-0 py-3 px-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-
-                <div class="fw-bold text-dark">
-                    Total Data :
-                    <span class="text-primary">{{ count($subjek) }}</span>
+        <div class="app-table-toolbar">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="soft-note">
+                    Data subjek dirapikan dengan warna kolom yang lebih lembut agar nyaman dilihat pegawai BPS Provinsi Banten.
                 </div>
 
                 <input type="text"
@@ -77,12 +133,11 @@
             </div>
         </div>
 
-        <div class="card-body p-0">
-
+        <div class="app-table-wrap">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tableSubjek">
+                <table class="table app-table-modern align-middle mb-0" id="tableSubjek">
 
-                    <thead class="bg-light">
+                    <thead>
                         <tr>
                             <th width="70" class="px-4 py-3">No</th>
                             <th class="py-3">Tim Kerja</th>
@@ -206,14 +261,17 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Tim Kerja</label>
-                        <select name="id_timkerja" class="form-select rounded-3" required>
-                            <option value="">-- Pilih Tim Kerja --</option>
-                            @foreach($timkerja as $t)
-                                <option value="{{ $t->id_timkerja }}">
-                                    {{ $t->nama_timkerja }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="hidden" name="id_timkerja" class="timkerja-hidden-input">
+                        <div class="search-select">
+                            <i class="bi bi-search search-select-icon"></i>
+                            <input type="text"
+                                   class="form-control rounded-3 search-select-input timkerja-search-input"
+                                   placeholder="Ketik nama tim kerja...">
+                            <div class="search-select-menu">
+                                <div class="search-select-list"></div>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">Boleh dikosongkan jika subjek belum ingin dikaitkan ke tim kerja tertentu.</small>
                     </div>
 
 
@@ -267,14 +325,18 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Tim Kerja</label>
-                        <select name="id_timkerja" class="form-select rounded-3" required>
-                            @foreach($timkerja as $t)
-                                <option value="{{ $t->id_timkerja }}"
-                                    {{ $s->id_timkerja == $t->id_timkerja ? 'selected' : '' }}>
-                                    {{ $t->nama_timkerja }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="hidden" name="id_timkerja" class="timkerja-hidden-input" value="{{ $s->id_timkerja }}">
+                        <div class="search-select">
+                            <i class="bi bi-search search-select-icon"></i>
+                            <input type="text"
+                                   class="form-control rounded-3 search-select-input timkerja-search-input"
+                                   placeholder="Ketik nama tim kerja..."
+                                   value="{{ $s->timkerja->nama_timkerja ?? '' }}">
+                            <div class="search-select-menu">
+                                <div class="search-select-list"></div>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">Boleh dikosongkan jika subjek ini tidak ingin dikaitkan ke tim kerja tertentu.</small>
                     </div>
 
                     <div class="mb-3">
@@ -329,6 +391,7 @@
 
 <script>
 let appModalBackdrop = null;
+const timkerjaSearchData = @json($timkerjaSearchData);
 
 function ensureAppModalBackdrop() {
     if (!appModalBackdrop) {
@@ -394,6 +457,72 @@ function closeAppModal(modalId) {
 }
 
 document.addEventListener('DOMContentLoaded', function(){
+    function renderTimkerjaSearch(modal) {
+        const input = modal.querySelector('.timkerja-search-input');
+        const hiddenInput = modal.querySelector('.timkerja-hidden-input');
+        const menu = modal.querySelector('.search-select-menu');
+        const list = modal.querySelector('.search-select-list');
+
+        if (!input || !hiddenInput || !menu || !list) {
+            return;
+        }
+
+        const draw = (keyword = '') => {
+            const normalized = String(keyword || '').trim().toLowerCase();
+            const filtered = timkerjaSearchData.filter(item => item.label.toLowerCase().includes(normalized));
+
+            if (!filtered.length) {
+                list.innerHTML = '<div class="search-select-empty">Tim kerja tidak ditemukan.</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(item => `
+                <div class="search-select-item" data-id="${item.id}" data-label="${item.label}">
+                    <div class="search-select-title">${item.label}</div>
+                </div>
+            `).join('');
+        };
+
+        input.addEventListener('focus', function() {
+            draw(input.value);
+            menu.classList.add('is-open');
+        });
+
+        input.addEventListener('input', function() {
+            hiddenInput.value = '';
+            draw(input.value);
+            menu.classList.add('is-open');
+        });
+
+        list.addEventListener('click', function(event) {
+            const option = event.target.closest('.search-select-item');
+            if (!option) {
+                return;
+            }
+
+            hiddenInput.value = option.dataset.id;
+            input.value = option.dataset.label;
+            menu.classList.remove('is-open');
+        });
+
+        input.addEventListener('blur', function() {
+            setTimeout(() => {
+                const matched = timkerjaSearchData.find(item => item.label.toLowerCase() === input.value.trim().toLowerCase());
+                if (matched) {
+                    hiddenInput.value = matched.id;
+                    input.value = matched.label;
+                } else if (!input.value.trim()) {
+                    hiddenInput.value = '';
+                } else {
+                    hiddenInput.value = '';
+                }
+                menu.classList.remove('is-open');
+            }, 150);
+        });
+    }
+
+    document.querySelectorAll('[data-app-modal]').forEach(renderTimkerjaSearch);
+
     document.querySelectorAll('[data-app-modal-close]').forEach(button => {
         button.addEventListener('click', function () {
             const modal = this.closest('[data-app-modal]');

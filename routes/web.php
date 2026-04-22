@@ -111,10 +111,16 @@ Route::middleware(['auth', 'track.user.activity'])->group(function () {
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
         Route::get('/monitoring/create', [MonitoringController::class, 'create'])->name('monitoring.create');
         Route::post('/monitoring', [MonitoringController::class, 'store'])->name('monitoring.store');
+        Route::get('/monitoring/{monitoring}', [MonitoringController::class, 'show'])->name('monitoring.show');
+        Route::get('/monitoring/{monitoring}/edit', [MonitoringController::class, 'edit'])->name('monitoring.edit');
+        Route::put('/monitoring/{monitoring}', [MonitoringController::class, 'update'])->name('monitoring.update');
         Route::delete('/monitoring/{monitoring}', [MonitoringController::class, 'destroy'])->name('monitoring.destroy');
         Route::get('/evaluasi', [EvaluasiController::class, 'index'])->name('evaluasi.index');
         Route::get('/evaluasi/create', [EvaluasiController::class, 'create'])->name('evaluasi.create');
         Route::post('/evaluasi', [EvaluasiController::class, 'store'])->name('evaluasi.store');
+        Route::get('/evaluasi/{evaluasi}', [EvaluasiController::class, 'show'])->name('evaluasi.show');
+        Route::get('/evaluasi/{evaluasi}/edit', [EvaluasiController::class, 'edit'])->name('evaluasi.edit');
+        Route::put('/evaluasi/{evaluasi}', [EvaluasiController::class, 'update'])->name('evaluasi.update');
         Route::delete('/evaluasi/{evaluasi}', [EvaluasiController::class, 'destroy'])->name('evaluasi.destroy');
     });
 

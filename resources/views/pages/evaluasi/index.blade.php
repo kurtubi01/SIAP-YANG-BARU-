@@ -83,6 +83,12 @@
         background: #fff5f5;
     }
 
+    .icon-btn.icon-edit {
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        background: #eff6ff;
+    }
+
     .cell-title {
         font-weight: 700;
         color: #0f172a;
@@ -101,6 +107,12 @@
         <div>
             <h1 class="app-page-title">Evaluasi SOP</h1>
             <p class="app-page-subtitle">Catat hasil evaluasi SOP aktif dengan pola tampilan yang konsisten, spasi yang lega, dan batas tabel yang jelas agar lebih nyaman dibaca.</p>
+            <nav aria-label="breadcrumb" class="mt-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route($prefix . '.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary fw-bold">Evaluasi</li>
+                </ol>
+            </nav>
         </div>
 
         @if($canManage)
@@ -111,10 +123,6 @@
             <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">Mode baca untuk viewer</span>
         @endif
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-4">{{ session('success') }}</div>
-    @endif
 
     <div class="app-table-card">
         <div class="app-table-toolbar">
@@ -164,13 +172,16 @@
                             <td class="text-center">
                                 @if($canManage)
                                     <div class="action-tools">
-                                        <button type="button" class="icon-btn" title="Evaluasi tersimpan" disabled>
+                                        <a href="{{ route($prefix . '.evaluasi.show', $evaluasi->id_evaluasi) }}" class="icon-btn" title="Lihat evaluasi">
                                             <i class="bi bi-eye"></i>
-                                        </button>
-                                        <form method="POST" action="{{ route($prefix . '.evaluasi.destroy', $evaluasi->id_evaluasi) }}">
+                                        </a>
+                                        <a href="{{ route($prefix . '.evaluasi.edit', $evaluasi->id_evaluasi) }}" class="icon-btn icon-edit" title="Edit evaluasi">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form method="POST" action="{{ route($prefix . '.evaluasi.destroy', $evaluasi->id_evaluasi) }}" class="delete-evaluasi-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="icon-btn icon-danger" title="Hapus evaluasi">
+                                            <button type="button" class="icon-btn icon-danger btn-delete-evaluasi" title="Hapus evaluasi">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         </form>
@@ -191,4 +202,41 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(session('success'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: @json(session('success')),
+                showConfirmButton: false,
+                timer: 1200,
+                timerProgressBar: true
+            });
+        @endif
+
+        document.querySelectorAll('.btn-delete-evaluasi').forEach((button) => {
+            button.addEventListener('click', function () {
+                const form = this.closest('.delete-evaluasi-form');
+
+                Swal.fire({
+                    title: 'Hapus evaluasi?',
+                    text: 'Data evaluasi akan dihapus permanen.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed && form) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

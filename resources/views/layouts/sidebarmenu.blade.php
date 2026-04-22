@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIAP | BPS Banten</title>
+    @php($browserTitle = match (true) {
+        request()->routeIs('*.dashboard') => 'Dashboard',
+        request()->routeIs('*.sop.*') => 'Data SOP',
+        request()->routeIs('*.monitoring.*') => 'Monitoring',
+        request()->routeIs('*.evaluasi.*') => 'Evaluasi',
+        request()->routeIs('admin.user.*') => 'Manajemen User',
+        request()->routeIs('admin.timkerja.*') => 'Manajemen Tim Kerja',
+        request()->routeIs('admin.subjek.*') => 'Manajemen Subjek',
+        request()->routeIs('admin.activity.*') => 'Log Aktivitas',
+        default => 'SIAP'
+    })
+    <title>{{ $browserTitle }} | SIAP BPS</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -324,20 +335,30 @@
 
         .app-table-card {
             border-radius: 24px;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+            border: 1px solid #dce6f2;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
             overflow: hidden;
         }
 
         .app-table-toolbar {
             padding: 22px 24px 18px;
-            border-bottom: 1px solid #edf2f7;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border-bottom: 1px solid #e7eef7;
+            background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
         }
 
         .app-table-wrap {
             padding: 14px 18px 18px;
+        }
+
+        .soft-note {
+            padding: 0.9rem 1rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 100%);
+            border: 1px solid #dbeafe;
+            color: #475569;
+            font-size: 0.89rem;
+            line-height: 1.7;
         }
 
         .app-table-modern {
@@ -347,33 +368,36 @@
         }
 
         .app-table-modern thead th {
-            background: #f8fbff;
-            color: #334155;
+            background: linear-gradient(180deg, #eaf3ff 0%, #f6faff 100%);
+            color: #294264;
             font-size: 0.78rem;
             font-weight: 800;
             letter-spacing: 0.04em;
             text-transform: uppercase;
-            border: 0;
+            border-top: 1px solid #d7e3f0;
+            border-bottom: 1px solid #d7e3f0;
             padding: 1rem;
             white-space: nowrap;
         }
 
         .app-table-modern thead th:first-child {
+            border-left: 1px solid #d7e3f0;
             border-radius: 16px 0 0 16px;
         }
 
         .app-table-modern thead th:last-child {
+            border-right: 1px solid #d7e3f0;
             border-radius: 0 16px 16px 0;
         }
 
         .app-table-modern tbody tr {
-            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.055);
         }
 
         .app-table-modern tbody td {
-            border-top: 1px solid #edf2f7;
-            border-bottom: 1px solid #edf2f7;
+            border-top: 1px solid #e6edf5;
+            border-bottom: 1px solid #e6edf5;
             border-left: 0;
             border-right: 0;
             padding: 1rem;
@@ -382,12 +406,12 @@
         }
 
         .app-table-modern tbody td:first-child {
-            border-left: 1px solid #edf2f7;
+            border-left: 1px solid #e6edf5;
             border-radius: 16px 0 0 16px;
         }
 
         .app-table-modern tbody td:last-child {
-            border-right: 1px solid #edf2f7;
+            border-right: 1px solid #e6edf5;
             border-radius: 0 16px 16px 0;
         }
 

@@ -83,7 +83,7 @@ class EvaluasiController extends Controller
 
     private function findVisibleEvaluasiOrFail(int $id): Evaluasi
     {
-        $query = Evaluasi::query()->where('id_evaluasi', $id);
+        $query = Evaluasi::with(['sop.subjek.timkerja', 'user.timkerja'])->where('id_evaluasi', $id);
         $this->applyRoleScope($query);
 
         return $query->firstOrFail();
@@ -112,6 +112,8 @@ class EvaluasiController extends Controller
         return view('pages.evaluasi.create', [
             'sops' => $sops,
             'kriteriaOptions' => self::KRITERIA,
+            'evaluasi' => null,
+            'pageMode' => 'create',
         ]);
     }
 
@@ -170,16 +172,58 @@ class EvaluasiController extends Controller
 
     public function show($id)
     {
-        return redirect()->route($this->routePrefix() . '.evaluasi.index');
+        $evaluasi = $this->findVisibleEvaluasiOrFail((int) $id);
+
+        return view('pages.evaluasi.show', [
+            'evaluasi' => $evaluasi,
+        ]);
     }
 
     public function edit($id)
     {
-        return redirect()->route($this->routePrefix() . '.evaluasi.index');
+        $evaluasi = $this->findVisibleEvaluasiOrFail((int) $id);
+        $sops = $this->visibleSopQuery()->get();
+
+        return view('pages.evaluasi.create', [
+            'sops' => $sops,
+            'kriteriaOptions' => self::KRITERIA,
+            'evaluasi' => $evaluasi,
+            'pageMode' => 'edit',
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        return redirect()->route($this->routePrefix() . '.evaluasi.index');
+        $evaluasi = $this->findVisibleEvaluasiOrFail((int) $id);
+
+        $request->validate([
+            'id_sop' => ['required', Rule::in($this->visibleSopIds())],
+            'kriteria_evaluasi' => 'required|array|min:1',
+            'kriteria_evaluasi.*' => 'required|string|in:' . implode(',', self::KRITERIA),
+            'hasil_evaluasi' => 'required|string',
+            'catatan' => 'nullable|string',
+        ], [
+            'kriteria_evaluasi.required' => 'Pilih minimal satu kriteria evaluasi.',
+            'kriteria_evaluasi.min' => 'Pilih minimal satu kriteria evaluasi.',
+            'hasil_evaluasi.required' => 'Hasil evaluasi wajib diisi.',
+        ]);
+
+        $evaluasi->update([
+            'id_sop' => $request->id_sop,
+            'kriteria_evaluasi' => array_values($request->kriteria_evaluasi),
+            'hasil_evaluasi' => $request->hasil_evaluasi,
+            'catatan' => $request->catatan,
+        ]);
+
+        $this->userActivityService->log(
+            $request->user(),
+            'Ubah evaluasi',
+            'Memperbarui evaluasi untuk SOP ID ' . $evaluasi->id_sop . '.',
+            $request
+        );
+
+        return redirect()
+            ->route($this->routePrefix() . '.evaluasi.index')
+            ->with('success', 'Data evaluasi berhasil diperbarui!');
     }
 }

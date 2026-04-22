@@ -24,8 +24,10 @@ return new class extends Migration
             $table->integer('id_sop');
             $table->integer('id_user')->nullable();
             $table->dateTime('tanggal');
+            $table->text('prosedur')->nullable();
             $table->string('kriteria_penilaian', 255);
             $table->text('hasil_monitoring');
+            $table->text('tindakan')->nullable();
             $table->text('catatan')->nullable();
         });
     }

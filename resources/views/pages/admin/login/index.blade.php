@@ -154,6 +154,12 @@
                 </div>
                 <h3 class="fw-bold text-dark mb-2">Audit aktivitas user di dalam sistem</h3>
                 <p class="text-muted mb-0" style="max-width: 760px;">Semua aksi penting seperti login, tambah SOP, revisi SOP, tambah monitoring, evaluasi, dan perubahan user akan tercatat di sini lengkap dengan waktu, IP address, dan device.</p>
+                <nav aria-label="breadcrumb" class="mt-3">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
+                        <li class="breadcrumb-item active text-primary fw-bold">Log Aktivitas</li>
+                    </ol>
+                </nav>
             </div>
             <div class="summary-icon" style="width:72px;height:72px;border-radius:24px;font-size:1.8rem;">
                 <i class="bi bi-clipboard-data"></i>
